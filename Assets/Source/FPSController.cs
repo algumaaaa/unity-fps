@@ -11,10 +11,12 @@ public class FPSController : MonoBehaviour
     private InputAction jumpAction;
     private InputAction sprintAction;
     private InputAction shootAction;
+    private InputAction aimAction;
     private Vector2 moveInput;
     private Vector2 lookInput;
     private Vector3 currentMovement;
     private Camera mainCamera;
+    private Animator mainAnimator;
 
     public float mouseSensitivity = 1;
     public float sprintMultiplier = 2;
@@ -34,6 +36,7 @@ public class FPSController : MonoBehaviour
       jumpAction = playerControls.FindActionMap("Player").FindAction("Jump");
       sprintAction = playerControls.FindActionMap("Player").FindAction("Sprint");
       shootAction = playerControls.FindActionMap("Player").FindAction("Attack");
+      aimAction = playerControls.FindActionMap("Player").FindAction("Aim");
 
       moveAction.performed += context => moveInput = context.ReadValue<Vector2>();
       moveAction.canceled += context => moveInput = Vector2.zero;
@@ -44,16 +47,19 @@ public class FPSController : MonoBehaviour
     private void Start()
     {
       characterController = GetComponent<CharacterController>();
+      mainAnimator = GetComponentInChildren<Animator>();
       mainCamera = Camera.main;
+      OnEnable();
     }
 
-    /* TODO: Needed?
     private void OnEnable()
     {
       moveAction.Enable();
       lookAction.Enable();
       jumpAction.Enable();
       sprintAction.Enable();
+      shootAction.Enable();
+      aimAction.Enable();
     }
 
     private void OnDisable()
@@ -63,7 +69,6 @@ public class FPSController : MonoBehaviour
       jumpAction.Disable();
       sprintAction.Disable();
     }
-    */
 
     private void ProcessMovement()
     {
@@ -117,10 +122,21 @@ public class FPSController : MonoBehaviour
       }
     }
 
+    private void HandleAim()
+    {
+      if (aimAction.IsPressed()) {
+        mainAnimator.SetFloat("isAiming", 1);
+      }
+      else {
+        mainAnimator.SetFloat("isAiming", -1);
+      }
+    }
+
     private void Update()
     {
       ProcessMovement();
       HandleRotation();
       HandleShoot();
+      HandleAim();
     }
 }
