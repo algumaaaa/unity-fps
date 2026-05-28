@@ -26,7 +26,9 @@ public class FPSController : MonoBehaviour
     private const float GRAVITY = 10;
     private const float RAYCAST_RANGE = 100;
     private float verticalRotation = 0;
+    private float ammo = 6;
     private bool isMoving = false;
+    private bool isAiming = false;
 
     private void Awake()
     {
@@ -42,6 +44,9 @@ public class FPSController : MonoBehaviour
       moveAction.canceled += context => moveInput = Vector2.zero;
       lookAction.performed += context => lookInput = context.ReadValue<Vector2>();
       lookAction.canceled += context => lookInput = Vector2.zero;
+      shootAction.performed += context => HandleShoot();
+      shootAction.canceled += context => mainAnimator.SetBool("isShooting", false);
+      // TODO: can probably other inputs the same way?
     }
 
     private void Start()
@@ -114,11 +119,13 @@ public class FPSController : MonoBehaviour
 
     private void HandleShoot()
     {
-      if (shootAction.triggered) {
-        RaycastHit hitInfo;
-        if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hitInfo)) {
-          Debug.Log(hitInfo);
-        }
+      if (ammo == 0 || !isAiming) return;
+      mainAnimator.SetBool("isShooting", true);
+      ammo--;
+      RaycastHit hitInfo;
+      if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hitInfo)) {
+        Debug.Log(hitInfo);
+        Debug.Log(ammo);
       }
     }
 
@@ -126,9 +133,11 @@ public class FPSController : MonoBehaviour
     {
       if (aimAction.IsPressed()) {
         mainAnimator.SetFloat("isAiming", 1);
+        isAiming = true;
       }
       else {
         mainAnimator.SetFloat("isAiming", -1);
+        isAiming = false;
       }
     }
 
@@ -136,7 +145,7 @@ public class FPSController : MonoBehaviour
     {
       ProcessMovement();
       HandleRotation();
-      HandleShoot();
+      //HandleShoot();
       HandleAim();
     }
 }
