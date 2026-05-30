@@ -22,17 +22,17 @@ public class FPSController : MonoBehaviour
     public float sprintMultiplier = 2;
     public float walkSpeed = 1;
     public float jumpForce = 10;
+    public float ammo = 6;
 
     private const float GRAVITY = 10;
     private const float RAYCAST_RANGE = 100;
     private float verticalRotation = 0;
-    private float ammo = 6;
     private bool isMoving = false;
     private bool isAiming = false;
 
     private void Awake()
     {
-      //Cursor.lockState = CursorLockMode.Locked;
+      Cursor.lockState = CursorLockMode.Locked;
       moveAction = playerControls.FindActionMap("Player").FindAction("Move");
       lookAction = playerControls.FindActionMap("Player").FindAction("Look");
       jumpAction = playerControls.FindActionMap("Player").FindAction("Jump");
@@ -122,6 +122,7 @@ public class FPSController : MonoBehaviour
       if (ammo == 0 || !isAiming) return;
       mainAnimator.SetBool("isShooting", true);
       ammo--;
+      mainCamera.GetComponent<CameraShake>().AddStress(1f);
       RaycastHit hitInfo;
       if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hitInfo)) {
         Debug.Log(hitInfo);
@@ -145,7 +146,6 @@ public class FPSController : MonoBehaviour
     {
       ProcessMovement();
       HandleRotation();
-      //HandleShoot();
       HandleAim();
     }
 }
